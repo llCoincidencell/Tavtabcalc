@@ -1,121 +1,156 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BIST tavan taban Hesaplayıcı</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BIST Tavan/Taban Hesaplayıcı</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 20px;
-      height: 100vh;
-      font-family: sans-serif;
-    }
+    * { box-sizing: border-box; }
 
     body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f7f7f7;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      align-items: stretch;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-
-    th {
-      background-color: #eee;
-    }
-
-    tr.positive:hover {
-      background-color: #c6f6c6; /* açık yeşil */
-    }
-
-    tr.negative:hover {
-      background-color: #f6c6c6; /* açık kırmızı */
-    }
-
-    tr.neutral:hover {
-      background-color: gray; /* hiç hover rengi olmasın */
+      align-items: center;
     }
 
     h1 {
-      font-size: 18px;
+      font-size: 25px;
+      margin-bottom: 10px;
       text-align: center;
-      margin: 5px 0;
+    }
+
+    .container {
+      max-width: 700px;
+      width: 100%;
+      background: white;
+      padding: 20px;
+      border-radius: 18px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
     input, button {
-      padding: 9px;
-      font-size: 18px;
-      margin: 5px 0;
+      padding: 10px;
+      font-size: 26px;
       width: 100%;
-      box-sizing: border-box;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
-    .info {
-      font-size: 24px;
+    .columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .col {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      font-size: 26px;
       font-weight: bold;
       text-align: center;
+      padding: 12px;
+      border-radius: 40px;
+      margin-bottom: 10px;
     }
 
-    .positive { color: green; }
-    .negative { color: red; }
-    .neutral  { color: black; font-weight: bold; }
+    .positive { color: green; background-color: #e9fce9; }
+    .negative { color: red; background-color: #fde7e7; }
+    .neutral  { color: black; }
 
     table {
       width: 100%;
-      font-size: 14px;
       border-collapse: collapse;
+      font-size: 18px;
     }
 
-    th, td {
-      border: 2px solid #1999;
-      padding: 4px;
-      text-align: center;
-    }
-
-    th {
+    thead {
+      display: table-header-group;
       background-color: #eee;
     }
 
-    .panel {
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-evenly;
+    tbody {
+      display: block;
+      max-height: 550px;  /* yaklaşık 10 satır yüksekliği */
+      overflow-y: auto;
     }
 
-    .table-wrapper {
-      flex: 1;
-      overflow-y: auto;
+    tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 3px solid #aaa;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    tr.positive:hover {
+      background-color: #c6f6c6;
+    }
+
+    tr.negative:hover {
+      background-color: #f6c6c6;
+    }
+
+    tr.neutral:hover {
+      background-color: #ddd;
     }
   </style>
 </head>
 <body>
-  <h1>BIST TAVAN/TABAN YÜZDE DİLİMLERİ HESAPLAYICISI</h1>
-  
+  <div class="container">
+    <h1>BIST TAVAN/TABAN YÜZDE DİLİMLERİ HESAPLAYICISI</h1>
 
-  <input type="number" id="fiyat" 
-         placeholder="Hissenin kapanış fiyatını girin" 
-         step="0.01" 
-         style="text-align:center; font-weight: bold;"
-         onkeydown="if(event.key === 'Enter') hesapla();">
+    <input type="number" id="fiyat"
+           placeholder="Hissenin kapanış fiyatını girin"
+           step="0.01"
+           style="text-align: center; font-weight: bold;"
+           onkeydown="if(event.key === 'Enter') hesapla();">
 
-  <button onclick="hesapla()">Hesapla</button>
+    <button onclick="hesapla()">Hesapla</button>
 
-  <div id="bilgi" class="info"></div>
+    <div class="columns">
+      <div class="col">
+        <div id="tavanBilgi" class="card positive">Tavan: -</div>
+        <table id="tavanTable">
+          <thead>
+            <tr>
+              <th>Fiyat</th>
+              <th>Yüzde</th>
+              <th>Fark</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-  <div class="table-wrapper">
-    <table id="sonuclar">
-      <thead>
-        <tr>
-          <th>Fiyat</th>
-          <th>Yüzde</th>
-          <th>Fark (₺)</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+      <div class="col">
+        <div id="tabanBilgi" class="card negative">Taban: -</div>
+        <table id="tabanTable">
+          <thead>
+            <tr>
+              <th>Fiyat</th>
+              <th>Yüzde</th>
+              <th>Fark</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -135,53 +170,63 @@
       if (isNaN(fiyat) || fiyat <= 0) return alert("Geçerli fiyat girin!");
 
       let adim = fiyatAdimi(fiyat);
-
-      // Tavan ve taban ham değerleri
       let tavanHam = fiyat * 1.1005;
       let tabanHam = fiyat * 0.9005;
 
-      // Tavan: %10'u geçmeyen en yakın kademeye kadar düş
       let tavan = Math.ceil(tavanHam / adim) * adim;
-      while ((tavan - fiyat) / fiyat > 0.100+ 0.00001) {
+      while ((tavan - fiyat) / fiyat > 0.100 + 0.00001) {
         tavan = Math.round((tavan - adim) * 100) / 100;
       }
 
-      // Taban: %10'u geçmeyen en yakın kademeye kadar yükselt
       let taban = Math.floor(tabanHam / adim) * adim;
-      while ((fiyat - taban) / fiyat > 0.100+ 0.00001) {
+      while ((fiyat - taban) / fiyat > 0.100 + 0.00001) {
         taban = Math.round((taban + adim) * 100) / 100;
       }
 
-      
-            // Yuvarla
       tavan = Math.round(tavan * 100) / 100;
       taban = Math.round(taban * 100) / 100;
 
       let tavanYuzde = ((tavan - fiyat) / fiyat) * 100;
       let tabanYuzde = ((taban - fiyat) / fiyat) * 100;
 
-      document.getElementById("bilgi").innerHTML = `
-        <div class="positive">Tavan: ${tavan.toFixed(2)} ₺ (+${tavanYuzde.toFixed(2)}%)</div>
-        <div class="negative">Taban: ${taban.toFixed(2)} ₺ (${tabanYuzde.toFixed(2)}%)</div>
-      `;
+      document.getElementById("tavanBilgi").innerHTML = `Tavan: ${tavan.toFixed(2)} ₺<br>(+${tavanYuzde.toFixed(2)}%)`;
+      document.getElementById("tabanBilgi").innerHTML = `Taban: ${taban.toFixed(2)} ₺<br>(${tabanYuzde.toFixed(2)}%)`;
 
-      let tbody = document.querySelector("#sonuclar tbody");
-      tbody.innerHTML = "";
+      // Tabloları temizle
+      let tavanBody = document.querySelector("#tavanTable tbody");
+      let tabanBody = document.querySelector("#tabanTable tbody");
+      tavanBody.innerHTML = "";
+      tabanBody.innerHTML = "";
 
-      for (let f = tavan; f >= taban; f = Math.round((f - adim) * 100) / 100) {
+      // Tavan tablosunu tersine çevir
+      let tavanList = [];
+      for (let f = tavan; f > fiyat; f = Math.round((f - adim) * 100) / 100) {
         let fark = Math.round((f - fiyat) * 100) / 100;
-        let yuzde = Math.round((fark / fiyat) * 10000) / 100;
+        let yuzde = ((fark / fiyat) * 100).toFixed(2);
+        tavanList.push({fiyat: f, yuzde: yuzde, fark: fark});
+      }
+      tavanList.reverse();  // tersine çevir
+      for (let item of tavanList) {
+        tavanBody.innerHTML += `
+          <tr class="positive">
+            <td>${item.fiyat.toFixed(2)} ₺</td>
+            <td>+${item.yuzde}%</td>
+            <td>+${item.fark.toFixed(2)} ₺</td>
+          </tr>
+        `;
+      }
 
-        let cls = "neutral";
-        if (yuzde > 0) cls = "positive";
-        else if (yuzde < 0) cls = "negative";
-
-        let row = `<tr class="${cls}">
-          <td>${f.toFixed(2)} ₺</td>
-          <td class="${cls}">${yuzde.toFixed(2)}%</td>
-          <td class="${cls}">${fark >= 0 ? "+" : ""}${fark.toFixed(2)} ₺</td>
-        </tr>`;
-        tbody.innerHTML += row;
+      // Taban tablosu normal
+      for (let f = fiyat - adim; f >= taban; f = Math.round((f - adim) * 100) / 100) {
+        let fark = Math.round((f - fiyat) * 100) / 100;
+        let yuzde = ((fark / fiyat) * 100).toFixed(2);
+        tabanBody.innerHTML += `
+          <tr class="negative">
+            <td>${f.toFixed(2)} ₺</td>
+            <td>${yuzde}%</td>
+            <td>${fark.toFixed(2)} ₺</td>
+          </tr>
+        `;
       }
     }
   </script>
