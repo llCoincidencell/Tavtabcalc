@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIST tavan taban Hesaplayıcı</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 20;
+      height: 100vh;
+      font-family: sans-serif;
+
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+      tr:hover {
+     background-color: gold;}
+     background-color: 
+     cursor: pointer ;
+      }
+    }
+    h1 {
+      font-size: 18px;
+      text-align: center;
+      margin: 5px 0;
+    }
+
+    input, button {
+      padding: 9px;
+      font-size: 18px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .info {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .positive { color: green; }
+    .negative { color: red; }
+    .neutral  { color: black; font-weight: bold; }
+
+    table {
+      width: 100%;
+      font-size: 14px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 2px solid #1999;
+      padding: 4px ;
+      text-align: center;
+    }
+
+    th {
+      background-color: #eee;
+    }
+
+    .panel {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+    }
+
+    .table-wrapper {
+      flex: 1;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>BIST TAVAN/TABAN YÜZDE DİLİMLERİ HESAPLAYICISI</h1>
+
+
+  <input type="number" id="fiyat" 
+  placeholder="Hissenin kapanış fiyatını girin" 
+  step="0.01" 
+  style="text-align:center; font-weight: bold;"
+    onkeydown="if(event.key ==='Enter') hesapla();">
+
+  <button onclick="hesapla()">Hesapla</button>
+
+  <div id="bilgi" class="info"></div>
+
+  <div class="table-wrapper">
+    <table id="sonuclar">
+      <thead>
+        <tr>
+          <th>Fiyat</th>
+          <th>Yüzde</th>
+          <th>Fark (₺)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    function fiyatAdimi(f) {
+      if (f < 20) return 0.010;
+      else if (f < 50) return 0.020;
+      else if (f < 100) return 0.050;
+      else if (f < 250) return 0.100;
+      else if (f < 500) return 0.250;
+      else if (f < 1000) return 0.500;
+      else if (f < 2500) return 1.000;
+      else return 2.500;
+    }
+
+    function hesapla() {
+      let fiyat = parseFloat(document.getElementById("fiyat").value);
+      if (isNaN(fiyat) || fiyat <= 0) return alert("Geçerli fiyat girin!");
+
+      let adim = fiyatAdimi(fiyat);
+
+      let tavanHam = fiyat * 1.10;
+      let tabanHam = fiyat * 0.90;
+
+      let tavan = Math.ceil(tavanHam / adim) * adim;
+      let taban = Math.floor(tabanHam / adim) * adim;
+
+      // Tavan %10'u geçerse geri çek
+      if ((tavan - fiyat) / fiyat > 0.10 + 0.0001) {
+        tavan -= adim;
+      }
+
+      // Taban %10'u geçerse yukarı çek
+      if ((fiyat - taban) / fiyat > 0.10 + 0.0001) {
+        taban += adim;
+      }
+
+      // Yuvarla
+      tavan = Math.round(tavan * 100) / 100;
+      taban = Math.round(taban * 100) / 100;
+
+      let tavanYuzde = ((tavan - fiyat) / fiyat) * 100;
+      let tabanYuzde = ((taban - fiyat) / fiyat) * 100;
+
+      document.getElementById("bilgi").innerHTML = `
+        <div class="positive">Tavan: ${tavan.toFixed(2)} ₺ (+${tavanYuzde.toFixed(2)}%)</div>
+        <div class="negative">Taban: ${taban.toFixed(2)} ₺ (${tabanYuzde.toFixed(2)}%)</div>
+      `;
+
+      let tbody = document.querySelector("#sonuclar tbody");
+      tbody.innerHTML = "";
+
+      for (let f = tavan; f >= taban; f = Math.round((f - adim) * 100) / 100) {
+        let fark = Math.round((f - fiyat) * 100) / 100;
+        let yuzde = Math.round((fark / fiyat) * 10000) / 100;
+
+        let cls = "neutral";
+        if (yuzde > 0) cls = "positive";
+        else if (yuzde < 0) cls = "negative";
+        let iskapanis = Math.abs(f- fiyat)< 0.0001     
+        let row = `<tr class="${cls}">
+          <td>${f.toFixed(2)} ₺</td>
+          <td class="${cls}">${yuzde.toFixed(2)}%</td>
+          <td class="${cls}">${fark >= 0 ? "+" : ""}${fark.toFixed(2)} ₺</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      }
+    }
+  </script>
+</body>
+</html>
