@@ -7,10 +7,10 @@
   <style>
     html, body {
       margin: 0;
-      padding: 20;
+      padding: 20px;
       height: 100vh;
       font-family: sans-serif;
-
+    }
 
     body {
       display: flex;
@@ -20,12 +20,23 @@
       padding: 10px;
       box-sizing: border-box;
     }
-      tr:hover {
-     background-color: gold;}
-     background-color: 
-     cursor: pointer ;
-      }
+
+    th {
+      background-color: #eee;
     }
+
+    tr.positive:hover {
+      background-color: #c6f6c6; /* açık yeşil */
+    }
+
+    tr.negative:hover {
+      background-color: #f6c6c6; /* açık kırmızı */
+    }
+
+    tr.neutral:hover {
+      background-color: gray; /* hiç hover rengi olmasın */
+    }
+
     h1 {
       font-size: 18px;
       text-align: center;
@@ -58,7 +69,7 @@
 
     th, td {
       border: 2px solid #1999;
-      padding: 4px ;
+      padding: 4px;
       text-align: center;
     }
 
@@ -82,13 +93,13 @@
 </head>
 <body>
   <h1>BIST TAVAN/TABAN YÜZDE DİLİMLERİ HESAPLAYICISI</h1>
-
+  
 
   <input type="number" id="fiyat" 
-  placeholder="Hissenin kapanış fiyatını girin" 
-  step="0.01" 
-  style="text-align:center; font-weight: bold;"
-    onkeydown="if(event.key ==='Enter') hesapla();">
+         placeholder="Hissenin kapanış fiyatını girin" 
+         step="0.01" 
+         style="text-align:center; font-weight: bold;"
+         onkeydown="if(event.key === 'Enter') hesapla();">
 
   <button onclick="hesapla()">Hesapla</button>
 
@@ -125,23 +136,24 @@
 
       let adim = fiyatAdimi(fiyat);
 
-      let tavanHam = fiyat * 1.10;
-      let tabanHam = fiyat * 0.90;
+      // Tavan ve taban ham değerleri
+      let tavanHam = fiyat * 1.1005;
+      let tabanHam = fiyat * 0.9005;
 
+      // Tavan: %10'u geçmeyen en yakın kademeye kadar düş
       let tavan = Math.ceil(tavanHam / adim) * adim;
+      while ((tavan - fiyat) / fiyat > 0.100+ 0.00001) {
+        tavan = Math.round((tavan - adim) * 100) / 100;
+      }
+
+      // Taban: %10'u geçmeyen en yakın kademeye kadar yükselt
       let taban = Math.floor(tabanHam / adim) * adim;
-
-      // Tavan %10'u geçerse geri çek
-      if ((tavan - fiyat) / fiyat > 0.10 + 0.0001) {
-        tavan -= adim;
+      while ((fiyat - taban) / fiyat > 0.100+ 0.00001) {
+        taban = Math.round((taban + adim) * 100) / 100;
       }
 
-      // Taban %10'u geçerse yukarı çek
-      if ((fiyat - taban) / fiyat > 0.10 + 0.0001) {
-        taban += adim;
-      }
-
-      // Yuvarla
+      
+            // Yuvarla
       tavan = Math.round(tavan * 100) / 100;
       taban = Math.round(taban * 100) / 100;
 
@@ -163,7 +175,7 @@
         let cls = "neutral";
         if (yuzde > 0) cls = "positive";
         else if (yuzde < 0) cls = "negative";
-        let iskapanis = Math.abs(f- fiyat)< 0.0001     
+
         let row = `<tr class="${cls}">
           <td>${f.toFixed(2)} ₺</td>
           <td class="${cls}">${yuzde.toFixed(2)}%</td>
